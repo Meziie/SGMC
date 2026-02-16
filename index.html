@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年会抽奖系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #8B0000 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 4px solid #FFD700;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 72px;
+            color: #FFD700;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.6);
+            letter-spacing: 16px;
+            margin-bottom: 10px;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 40px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .config-title {
+            font-size: 28px;
+            color: #FFD700;
+            margin-bottom: 25px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .config-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #FFD700;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 20px;
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            font-weight: bold;
+        }
+
+        .control-group input {
+            text-align: center;
+        }
+
+        .lottery-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 5px solid #FFD700;
+            border-radius: 25px;
+            padding: 50px;
+            text-align: center;
+            margin: 50px 0;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        .current-prize-info {
+            font-size: 40px;
+            color: #FFD700;
+            margin-bottom: 40px;
+            font-weight: bold;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lottery-name-container {
+            width: 1400px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .lottery-name {
+            font-size: 160px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 5px 5px 10px rgba(0,0,0,0.8);
+            letter-spacing: 5px;
+            white-space: nowrap;
+            display: inline-block;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 50px 0;
+            flex-wrap: wrap;
+            height: 90px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 25px 80px;
+            font-size: 32px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            letter-spacing: 6px;
+            height: 85px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #8B0000;
+        }
+
+        .btn-start:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(255, 215, 0, 0.7);
+        }
+
+        .btn-start:disabled {
+            background: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            color: #FFD700;
+        }
+
+        .btn-stop:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(220, 20, 60, 0.7);
+        }
+
+        .btn-stop:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            border: 2px solid #FFD700;
+            padding: 18px 50px;
+            font-size: 20px;
+            height: auto;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .winners-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 50px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .winners-title {
+            font-size: 32px;
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .winner-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 6px solid #FFD700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .winner-prize {
+            font-size: 22px;
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .winner-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-size: 22px;
+            color: #FFD700;
+            opacity: 0.7;
+            padding: 40px;
+        }
+
+        @keyframes glow {
+            0%, 100% { 
+                text-shadow: 0 0 30px #FFD700, 0 0 50px #FFD700; 
+            }
+            50% { 
+                text-shadow: 0 0 50px #FFD700, 0 0 80px #FFD700, 0 0 100px #FFD700; 
+            }
+        }
+
+        .lottery-name.rolling {
+            animation: glow 0.6s infinite;
+        }
+
+        .pool-info {
+            text-align: center;
+            font-size: 18px;
+            color: #FFD700;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .completion-message {
+            font-size: 28px;
+            color: #FFD700;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            font-weight: bold;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #completionMessage {
+            height: 80px;
+        }
+
+        #completionMessage:empty {
+            height: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎊 年会抽奖 🎊</h1>
+        </div>
+
+        <div class="config-section">
+            <div class="config-title">🎁 抽奖设置</div>
+            <div class="config-controls">
+                <div class="control-group">
+                    <label for="prizeSelect">选择抽什么奖品：</label>
+                    <select id="prizeSelect">
+                        <option value="蓝牙耳机">蓝牙耳机</option>
+                        <option value="双肩包">双肩包</option>
+                        <option value="咖啡机">咖啡机</option>
+                        <option value="电煮锅">电煮锅</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="countInput">本轮计划抽几个：</label>
+                    <input type="number" id="countInput" min="1" value="1">
+                </div>
+            </div>
+            <div class="pool-info">
+                当前奖池剩余人数：<strong><span id="poolCount">182</span></strong> 人
+            </div>
+        </div>
+
+        <div class="lottery-display">
+            <div class="current-prize-info" id="currentPrizeInfo">请设置抽奖参数后开始</div>
+            <div class="lottery-name-container">
+                <div class="lottery-name" id="lotteryName">准备开始</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn">开始抽奖</button>
+            <button class="btn btn-stop" id="stopBtn" disabled>停止</button>
+        </div>
+        
+        <div id="completionMessage"></div>
+
+        <div class="controls">
+            <button class="btn btn-reset" id="resetBtn">完全重置（清空所有中奖记录）</button>
+        </div>
+
+        <div class="winners-section">
+            <div class="winners-title">🏆 中奖名单</div>
+            <div id="winnersContent">
+                <div class="empty-message">暂无中奖记录</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 初始奖池（182人 - 最终确认名单） ====================
+        const INITIAL_POOL = [
+            '王建彬', '王义', '赵红刚', '万少虎', '范会龙', '庞昊', '段凯旺', '何立文',
+            '冯晓军', '赵学刚', '于双江', '王立敏', '王京福', '李宏志', '石海波', '王国东',
+            '王益唱', '王红刚', '单忠信', '韩建国', '丁国忠', '刘士存', '孙仕儒', '梅萌萌',
+            '郭帅', '唐悦', '刘建勋', '王小刚', '李玉山', '廖志敏', '姜永', '孙云军',
+            '刘进锋', '戴绍祥', '郑学金', '杨春鹏', '姜博源', '曹小勇', '段立建', '刘丽',
+            '刘君', '周运泽', '张三有', '李玉珍', '刘濮', '唐荔', '何成义', '黄茜',
+            '徐紫怡', '孟涟漪', '高靖轩', '张清樾', '毛晓燕', '许岱彤', '虞子琼', '林嘉聪',
+            '潘国恩', '李达荣', '梁灿源', '朱海龙', '张向东', '李超', '曹旺', '张强',
+            '李汝会', '闫忠雷', '董爱科', '石云龙', '王志韧', '张中梁', '王建军', '李成卓',
+            '葛波', '王文超', '刘国法', '商超栋', '陈腾', '李义辉', '陈浩永', '杨爱林',
+            '滕彦清', '孙钊', '耿超', '陈明歌', '张小东', '杨斌斌', '王晓龙', '裴润红',
+            '史永超', '刘涛', '刘士华', '陈美新', '陈雄', '谢秀林', '苏建付', '陈志',
+            '吴强', '陈俊杰', '陈成峰', '陈雄伟', '张春强', '赵小东', '夏寅', '胡有红',
+            '陈喜东', 'MELISSA TORRES CASTELO', 'LOANNA YADHIRA CONTRERAS CHIRINOS', 'MAYLIN IZUMI PINILLOS RIOS',
+            'LIZ GUTIÉRREZ QUISPE', 'MARIA DE LOS ANGELES CRUZ TERRAZAS', 'FIORELLA ESTHER GOICOCHEA VELASQUES',
+            'Brenda Rivera Sifuentes', 'Maria de los Angeles Cruz Terrazas', 'Max Villena Muñoa',
+            'ESTEBAN INGAROCA LUIS', 'SOTELO ESPINOZA JORGE', 'SALAZAR IPANAQUE JAVIER', 'YAURI SAGASTE JACQUELINE',
+            'CCOLLCCA TAMBRAICO YULLMA', 'BARRAZA DENEGRI KATIA', 'MELENDEZ GOMEZ ALEXANDER', 'MORALES MEDINA MIGUEL',
+            'LEVANO COLLACHAGUA LISETH', 'CUBA SHUNA DANIEL', 'DE LA CRUZ QUISPE EDGAR', 'ESTEBAN CAMPOS LOURDES',
+            'RUBIO HUAYTA SUNILDA', 'Cleber Castillon', 'Jean Hostia', 'Victor Almeyda',
+            'Enrique LOAYZA moreano', 'Victoria Areas de loayza', 'LOAYZA Areas Enrique', 'Angel Cordova',
+            'VICTOR MALCA', 'CARLOS ABARCA', 'EDWIN PARI CHURATA', 'MOISES VASQUEZ',
+            'Cristian', 'Sarita la rosa giron', 'Ronald burneo anderstar', 'Junior chambergo huilcanina',
+            'Junior antezana zacarias', 'Fabian Farfan Cornejo', 'Jefrey', 'JUAN CLIMACO CONTRERAS VEGA',
+            'Claudia de la cruz', 'Luana ramos', 'Franchesca Ubeta', 'Nilson Flores',
+            'Luis Mayuri', 'Alcides Enrique Requejo castillo', 'Edgar Arnol De La Cruz Quispe', 'Juan Eduardo Vilchez Vite',
+            'Jimy Enrique Huarcaya Antezana', 'LILIANA YANINA AGUINAGA BECERRA', 'ISAAC ROJAS', 'GONZALO PASACHE',
+            'Wiliam Montaño', 'Franciescole Joel Salazar', 'DIEGO ALONSO SALINAS REVILLA', 'Jose Luis Diaz Ruiz',
+            'Daniel Guillermo Carrasco', 'Ruth Quispe Llocclla', 'Cyntria Nataly Farfan Herrera'
+        ];
+
+        // ==================== 状态变量 ====================
+        let currentPool = [];
+        let allWinners = [];
+        let isRolling = false;
+        let rollInterval = null;
+        let currentPrize = '';
+        let remainingCount = 0;
+
+        // ==================== DOM 元素 ====================
+        const prizeSelect = document.getElementById('prizeSelect');
+        const countInput = document.getElementById('countInput');
+        const currentPrizeInfo = document.getElementById('currentPrizeInfo');
+        const lotteryName = document.getElementById('lotteryName');
+        const lotteryNameContainer = document.querySelector('.lottery-name-container');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const winnersContent = document.getElementById('winnersContent');
+        const poolCount = document.getElementById('poolCount');
+        const completionMessage = document.getElementById('completionMessage');
+
+        // ==================== 字体大小自适应（使用真实DOM宽度） ====================
+        function adjustFontSize() {
+            // 重置缩放，获取真实宽度
+            lotteryName.style.transform = 'scale(1)';
+            
+            // 等待DOM更新
+            setTimeout(() => {
+                const scrollWidth = lotteryName.scrollWidth;
+                const containerWidth = lotteryNameContainer.clientWidth;
+                
+                // 如果内容超出容器，按比例缩小
+                if (scrollWidth > containerWidth) {
+                    const scale = containerWidth / scrollWidth;
+                    lotteryName.style.transform = `scale(${scale})`;
+                }
+            }, 0);
+        }
+
+        // ==================== 初始化 ====================
+        function init() {
+            loadData();
+            updatePoolCount();
+            renderWinners();
+            updatePrizeInfo();
+        }
+
+        function loadData() {
+            const savedWinners = localStorage.getItem('lottery_winners');
+            if (savedWinners) {
+                allWinners = JSON.parse(savedWinners);
+            }
+
+            const winnerNames = new Set(allWinners.map(w => w.name));
+            currentPool = INITIAL_POOL.filter(name => !winnerNames.has(name));
+        }
+
+        function saveData() {
+            localStorage.setItem('lottery_winners', JSON.stringify(allWinners));
+        }
+
+        function updatePoolCount() {
+            poolCount.textContent = currentPool.length;
+        }
+
+        function updatePrizeInfo() {
+            if (remainingCount > 0) {
+                currentPrizeInfo.textContent = `🎁 当前奖品：${currentPrize}（还需抽 ${remainingCount} 人）`;
+            } else {
+                currentPrizeInfo.textContent = '请设置抽奖参数后开始';
+            }
+        }
+
+        function renderWinners() {
+            if (allWinners.length === 0) {
+                winnersContent.innerHTML = '<div class="empty-message">暂无中奖记录</div>';
+                return;
+            }
+
+            let html = '';
+            allWinners.forEach(winner => {
+                html += `
+                    <div class="winner-item">
+                        <div class="winner-prize">🎁 ${winner.prize}</div>
+                        <div class="winner-name">${winner.name}</div>
+                    </div>
+                `;
+            });
+            winnersContent.innerHTML = html;
+        }
+
+        // ==================== 抽奖逻辑（优化节奏控制） ====================
+        function startLottery() {
+            // 如果是新的一轮抽奖，从输入框获取参数
+            if (remainingCount === 0) {
+                currentPrize = prizeSelect.value;
+                remainingCount = parseInt(countInput.value);
+
+                if (!remainingCount || remainingCount < 1) {
+                    alert('请输入有效的抽奖数量！');
+                    return;
+                }
+                
+                // 清空完成提示
+                completionMessage.innerHTML = '';
+            }
+
+            if (currentPool.length === 0) {
+                alert('奖池已空，没有可抽奖的人员！');
+                return;
+            }
+
+            isRolling = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            lotteryName.classList.add('rolling');
+
+            updatePrizeInfo();
+
+            // 只滚动一个名字，并动态调整字体大小
+            rollInterval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * currentPool.length);
+                const name = currentPool[randomIndex];
+                lotteryName.textContent = name;
+                adjustFontSize();
+            }, 80);
+        }
+
+        function stopLottery() {
+            if (!isRolling) return;
+
+            clearInterval(rollInterval);
+            isRolling = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            lotteryName.classList.remove('rolling');
+
+            // 随机选中1个人
+            const randomIndex = Math.floor(Math.random() * currentPool.length);
+            const winnerName = currentPool[randomIndex];
+            lotteryName.textContent = winnerName;
+            adjustFontSize();
+
+            // 记录中奖
+            allWinners.push({
+                name: winnerName,
+                prize: currentPrize,
+                timestamp: Date.now()
+            });
+
+            // 从奖池移除
+            currentPool.splice(randomIndex, 1);
+
+            // 剩余数量-1
+            remainingCount--;
+
+            // 保存并更新显示
+            saveData();
+            updatePoolCount();
+            renderWinners();
+            updatePrizeInfo();
+
+            // 只在本轮最后一个中奖人时显示完成提示
+            if (remainingCount === 0) {
+                completionMessage.innerHTML = `
+                    <div class="completion-message">
+                        🎉 ${currentPrize} 本轮抽奖完成！
+                    </div>
+                `;
+                currentPrizeInfo.textContent = '请设置下一轮抽奖参数';
+            }
+            // 否则保持姓名显示，不弹窗，不重置，允许继续抽奖
+        }
+
+        function resetAll() {
+            if (!confirm('确定要完全重置吗？\n\n将清空所有中奖记录，所有人员重新进入奖池！')) {
+                return;
+            }
+
+            allWinners = [];
+            currentPool = [...INITIAL_POOL];
+            remainingCount = 0;
+            currentPrize = '';
+            localStorage.removeItem('lottery_winners');
+
+            updatePoolCount();
+            renderWinners();
+            updatePrizeInfo();
+            lotteryName.textContent = '准备开始';
+            lotteryName.style.transform = 'scale(1)';
+            completionMessage.innerHTML = '';
+
+            alert('重置完成！');
+        }
+
+        // ==================== 事件监听 ====================
+        startBtn.addEventListener('click', startLottery);
+        stopBtn.addEventListener('click', stopLottery);
+        resetBtn.addEventListener('click', resetAll);
+
+        // 监听配置变化（当remainingCount为0时才允许修改）
+        prizeSelect.addEventListener('change', () => {
+            if (remainingCount === 0) {
+                completionMessage.innerHTML = '';
+            }
+        });
+
+        countInput.addEventListener('change', () => {
+            if (remainingCount === 0) {
+                completionMessage.innerHTML = '';
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
